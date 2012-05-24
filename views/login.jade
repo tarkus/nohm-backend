@@ -1,0 +1,24 @@
+.container
+
+  #login 
+    .row-fuild
+      .span8.page-header.offset3
+        h1 Nohm Admin
+      .span5.offset3
+        form.form-horizontal.well(method="post", action="/login")
+          fieldset
+            legend Login
+
+            .control-group
+              label.control-label(for="username") Login
+              .controls
+                input.input-large(type="text", id="username", name="username")
+
+            .control-group
+              label.control-label(for="password") Password
+              .controls
+                input.input-large(type="password", id="password", name="password")
+
+            .form-actions
+              button.btn.btn-primary(type="submit") Login
+

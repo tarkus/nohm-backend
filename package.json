@@ -1,0 +1,33 @@
+{
+  "author": "Tarkus Liu <tarkus.nnkh@gmail.com>",
+  "name": "nohm-admin",
+  "description": "a web interface for nohm database management",
+  "version": "0.1.0",
+  "homepage": "https://github.com/tarkus/nohm-admin",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/tarkus/nohm-admin.git"
+  },
+  "main": "app.coffee",
+  "scripts": {
+    "test": "mocha"
+  },
+  "dependencies": {
+    "express": "2.5.x",    
+    "coffee-script": "1.1.x",
+    "jade": "0.x.x",
+    "connect-assets": "2.1.x",
+    "connect-redis": "*",
+    "redis": "*", 
+    "nohm": "git+ssh://git@github.com:tarkus/nohm.git",
+    "stylus": "*",
+    "nib": "*",
+    "qs": "*",
+    "async": "*"
+  },
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  }
+}

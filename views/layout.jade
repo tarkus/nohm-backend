@@ -1,0 +1,46 @@
+!!! html
+head
+  meta(charset='utf-8')
+  meta(name='description', content='')
+  title #{title}
+  //- Mobile Specific
+  meta(name="viewport", content="width=device-width, initial-scale=1.0")
+  link(rel="shortcut icon", href="/assets/ico/favicon.ico")
+  // if lt IE 9
+    != js('html5shiv')
+  != js("https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js")
+  != js('bootstrap.min')
+  != js('jade.min')
+  != js('app')
+
+  != css("docs")
+  != css("simplex.min")
+  != css("bootstrap-responsive.min")
+  != css('app')
+  
+body
+  .navbar.navbar-fixed-top
+    .navbar-inner
+      .container
+        a.btn.btn-navbar(data-toggle="collapse", data-target=".nav-collapse")
+          span.icon-bar
+          span.icon-bar
+          span.icon-bar
+        a.brand(href='/') Nohm Admin
+        .nav-collapse
+          ul.nav
+            li: a(href="/dashboard") Dashboard
+            li: a(href="/command") Command
+            li: a(href="/persistent") Persistent
+            li.dropdown 
+              a.dropdown-toggle(data-toggle="dropdown", href="#") localhost
+                b.caret
+              ul.dropdown-menu
+                li: a(href="/timeline") localhost
+                li: a(href="/timeline") remote
+          ul.nav.pull-right
+            li: a(href="/logout") Logout
+
+  != body
+
+| </html>
