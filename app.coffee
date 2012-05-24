@@ -1,15 +1,13 @@
 express = require 'express'
-SessionStore = require('connect-redis')(express)
 stylus = require 'stylus'
 assets = require 'connect-assets'
-{Nohm} = require 'nohm'
+SessionStore = require('connect-redis')(express)
+NohmInstance = require './lib/nohm-instance'
+manifest = require './instance'
+instance = new NohmInstance manifest
 
-if process.env.REDISTOGO_URL
-  rtg = require('url').parse process.env.REDISTOGO_URL
-  redis = require('redis').createClient rtg.port, rtg.hostname
-  redis.auth rtg.auth.split(':')[1]
-else
-  redis = require('redis').createClient()
+unless instance?
+  throw "No nohm instance founded."
 
 app = express.createServer()
 
@@ -18,22 +16,30 @@ app.use express.bodyParser()
 app.use express.session
   secret: "nohm rocks!"
   maxAge: new Date Date.now() + 7200000
-  store: new SessionStore {client: redis}
+  store: new SessionStore {client: require('./lib/helper').connectRedis()}
 app.use assets()
 
 app.set 'view engine', 'jade'
 
 app.helpers
   title: "Nohm Admin"
+  models: instance.models
+  model_name: ''
 
 app.dynamicHelpers
-  user: (req, res) -> req.session
+  user: (req, res) ->
+    console.log "1"
+    req.session
 
+app.param 'model', (req, res, next, name) ->
+  res.local 'model_name', name
+  return next() unless instance.models[name]?
+  res.local 'model', new instance.models[name]
+  next()
 
-app.get '/model/overview/:model', (req, res) ->
-  model_name = req.params.model
+app.get '/model/:model', (req, res) ->
   res.render "model_overview", {
-    title: model_name + " model overview - Nohm Admin"
+    title: res.local('model').modelName + " model overview - Nohm Admin"
   }
 
 app.get '/dashboard', (req, res) ->
@@ -57,7 +63,7 @@ app.get '/logout', (req, res) ->
   req.session.destroy()
   res.render 'login'
 
-app.get '/*', (req, res, next) ->
+app.get '/', (req, res, next) ->
   if req.session.auth
     res.redirect '/dashboard'
   else

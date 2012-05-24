@@ -19,27 +19,28 @@ head
   != css('app')
   
 body
-  .navbar.navbar-fixed-top
-    .navbar-inner
-      .container
-        a.btn.btn-navbar(data-toggle="collapse", data-target=".nav-collapse")
-          span.icon-bar
-          span.icon-bar
-          span.icon-bar
-        a.brand(href='/') Nohm Admin
-        .nav-collapse
-          ul.nav
-            li: a(href="/dashboard") Dashboard
-            li: a(href="/command") Command
-            li: a(href="/persistent") Persistent
-            li.dropdown 
-              a.dropdown-toggle(data-toggle="dropdown", href="#") localhost
-                b.caret
-              ul.dropdown-menu
-                li: a(href="/timeline") localhost
-                li: a(href="/timeline") remote
-          ul.nav.pull-right
-            li: a(href="/logout") Logout
+  if user && user.auth
+    .navbar.navbar-fixed-top
+      .navbar-inner
+        .container
+          a.btn.btn-navbar(data-toggle="collapse", data-target=".nav-collapse")
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+          a.brand(href='/') Nohm Admin
+          .nav-collapse
+            ul.nav
+              li: a(href="/dashboard") Dashboard
+              li: a(href="/command") Command
+              li: a(href="/persistent") Persistent
+              li.dropdown 
+                a.dropdown-toggle(data-toggle="dropdown", href="#") localhost
+                  b.caret
+                ul.dropdown-menu
+                  li: a(href="/timeline") localhost
+                  li: a(href="/timeline") remote
+            ul.nav.pull-right
+              li: a(href="/logout") Logout
 
   != body
 
