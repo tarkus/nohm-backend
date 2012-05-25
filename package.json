@@ -21,9 +21,9 @@
     "redis": "*", 
     "nohm": "git+ssh://git@github.com:tarkus/nohm.git",
     "stylus": "*",
-    "nib": "*",
     "qs": "*",
-    "async": "*"
+    "async": "*",
+    "should": ""
   },
   "devDependencies": {},
   "optionalDependencies": {},

@@ -18,6 +18,7 @@ app.use express.session
   maxAge: new Date Date.now() + 7200000
   store: new SessionStore {client: require('./lib/helper').connectRedis()}
 app.use assets()
+app.use express.static __dirname + '/assets'
 
 app.set 'view engine', 'jade'
 
@@ -28,7 +29,6 @@ app.helpers
 
 app.dynamicHelpers
   user: (req, res) ->
-    console.log "1"
     req.session
 
 app.param 'model', (req, res, next, name) ->
@@ -55,9 +55,16 @@ app.get '/login', (req, res) ->
 app.post '/login', (req, res) ->
   username = req.body.username
   password = req.body.password
-  if username is "admin" and password is "redis"
+  if typeof instance.login is 'function'
+     login = instance.login(username, password)
+  else
+    login = username is instance.get("login", "user") and \
+            password is instance.get("login", "password")
+  if login
     req.session.auth = true
-  res.redirect '/dashboard'
+    res.redirect '/dashboard'
+  else
+    res.redirect '/login'
 
 app.get '/logout', (req, res) ->
   req.session.destroy()

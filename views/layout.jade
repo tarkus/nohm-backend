@@ -33,15 +33,14 @@ body
               li: a(href="/dashboard") Dashboard
               li: a(href="/command") Command
               li: a(href="/persistent") Persistent
-              li.dropdown 
-                a.dropdown-toggle(data-toggle="dropdown", href="#") localhost
-                  b.caret
-                ul.dropdown-menu
-                  li: a(href="/timeline") localhost
-                  li: a(href="/timeline") remote
             ul.nav.pull-right
               li: a(href="/logout") Logout
 
   != body
+
+  script(id="command-tpl", type="template")
+    include includes/command.jd
+  script(id="persistent-tpl", type="template")
+    include includes/persistent.jd
 
 | </html>

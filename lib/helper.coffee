@@ -10,3 +10,11 @@ exports.connectRedis = (config) ->
   else
     redis = require('redis').createClient()
   redis
+
+exports.isObject = (v) ->
+  return Object.prototype.toString.call(v) is '[object Object]' or \
+         Object.prototype.toString.call(v) is '[object Function]'
+
+exports.isArray = (v) ->
+  return if Object.prototype.toString.call(v) is '[object Array]'
+

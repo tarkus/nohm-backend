@@ -1,3 +1,7 @@
 ul.nav.nav-pills.nav-stacked
+  li.nav-header Models
   - for (name in models)
-    li(class=(model_name == name) && 'active'): a(href="/model/#{name}") #{name}
+    li(class=(model_name == name) && 'active')
+      a(href="/model/#{name}")
+        i.icon-home
+        #{name}

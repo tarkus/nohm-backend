@@ -3,19 +3,11 @@ path = require 'path'
 {Nohm} = require 'nohm'
 helper = require './helper'
 
-isObject = (v) ->
-  return Object.prototype.toString.call(v) is '[object Object]' or \
-         Object.prototype.toString.call(v) is '[object Function]'
-
-isArray = (v) ->
-  return if Object.prototype.toString.call(v) is '[object Array]'
-
 class NohmInstance
 
   conf:
-    login:
-      user: 'admin'
-      password: 'nohm'
+    login: (username, password) ->
+      return true
     redis:
       host: 'localhost'
       port: '6379'
@@ -25,21 +17,33 @@ class NohmInstance
 
   models: []
 
-  config: (name, value) ->
-    unless value?
-      return if @conf.name? then @conf.name else null
+  get: () ->
+    c = @conf
+    for arg in arguments
+      return null unless c[arg]?
+      c = c[arg]
+    c
 
-    @conf.name = value
+  set: () ->
+    return @conf if arguments.length < 2
+    node = @conf
+    for arg, k in arguments
+      unless node[arg]?
+        if k is arguments.length - 2
+          node[arg] = arguments[arguments.length - 1]
+          break
+        node[arg] = {}
+      node = node[arg]
     @setupNohm()
     @conf
 
   setupNohm: ->
     models = []
-    unless isArray(@conf.models)
+    unless helper.isArray(@conf.models)
       @conf.models = [@conf.models]
 
     for v in @conf.models
-      if isObject(v)
+      if helper.isObject(v)
         models.push v
         continue
 
