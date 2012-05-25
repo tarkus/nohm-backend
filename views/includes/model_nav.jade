@@ -1,5 +1,3 @@
-.subnav
-  ul.nav.nav-pills
-    li: a(href="/model/overview") Overview
-    li: a(href="/model/schemas") Schemas
-    li: a(href="/model/data") Data
+ul.nav.nav-tabs
+  li(class=(typeof is_overview != 'undefined' && 'active')): a(href="/model/#{model_name}") Overview
+  li(class=(typeof is_detail != 'undefined' && 'active')): a(href="/model/#{model_name}/detail") Detail

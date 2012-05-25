@@ -65,6 +65,11 @@ class NohmInstance
 
   constructor: (options) ->
     @conf = if options? then @conf extends options
+
     @setupNohm()
+    
+  getModel: (name) ->
+    m = new @models[name]()
+    return m
 
 module.exports = NohmInstance

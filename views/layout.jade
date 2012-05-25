@@ -2,7 +2,10 @@
 head
   meta(charset='utf-8')
   meta(name='description', content='')
-  title #{title}
+  title 
+    - if (title)
+      - title += " - "
+      #{title}Nohm Backend
   //- Mobile Specific
   meta(name="viewport", content="width=device-width, initial-scale=1.0")
   link(rel="shortcut icon", href="/assets/ico/favicon.ico")
@@ -11,7 +14,7 @@ head
   != js("https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js")
   != js('bootstrap.min')
   != js('jade.min')
-  != js('app')
+  != js('spine')
 
   != css("docs")
   != css("simplex.min")
@@ -27,12 +30,12 @@ body
             span.icon-bar
             span.icon-bar
             span.icon-bar
-          a.brand(href='/') Nohm Admin
+          a.brand(href='/') Nohm Backend
           .nav-collapse
             ul.nav
               li: a(href="/dashboard") Dashboard
-              li: a(href="/command") Command
-              li: a(href="/persistent") Persistent
+              li: a#command-btn(href="#") Command
+              li: a#persistent-btn(href="#") Persistent
             ul.nav.pull-right
               li: a(href="/logout") Logout
 
@@ -43,4 +46,5 @@ body
   script(id="persistent-tpl", type="template")
     include includes/persistent.jd
 
+  != js('app')
 | </html>
