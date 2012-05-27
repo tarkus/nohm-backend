@@ -16,5 +16,5 @@ exports.isObject = (v) ->
          Object.prototype.toString.call(v) is '[object Function]'
 
 exports.isArray = (v) ->
-  return if Object.prototype.toString.call(v) is '[object Array]'
+  return Object.prototype.toString.call(v) is '[object Array]'
 

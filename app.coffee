@@ -36,9 +36,9 @@ need_login = (req, res, next) ->
   next()
 
 app.param 'model', (req, res, next, name) ->
+  req.params.model_name = name
   res.local 'model_name', name
   return next() unless instance.models[name]?
-  console.log  instance.getModel name
   res.local 'model', instance.getModel name
   next()
 
@@ -47,6 +47,10 @@ app.get '/model/:model', need_login, (req, res) ->
     title: res.local('model').modelName + " model overview"
     is_overview: true
   }
+
+app.get '/model1/:model/check_index', need_login, (req, res) ->
+  data = instance.checkIndex(req.params.model_name)
+  res.send data
   
 app.get '/model/:model/detail', need_login, (req, res) ->
   res.render "model_detail", {
@@ -65,14 +69,9 @@ app.get '/login', (req, res) ->
   }
 
 app.post '/login', (req, res) ->
-  username = req.body.username
+  user = req.body.user
   password = req.body.password
-  if typeof instance.get('login') is 'function'
-    login = instance.get('login')(username, password)
-  else
-    login = username is instance.get("login", "user") and \
-            password is instance.get("login", "password")
-  if login
+  if instance.login user, password
     req.session.auth = true
     res.redirect '/dashboard'
   else

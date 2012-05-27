@@ -15,6 +15,7 @@ head
   != js('bootstrap.min')
   != js('jade.min')
   != js('spine')
+  != js('spine.ajax')
 
   != css("docs")
   != css("simplex.min")
@@ -45,6 +46,8 @@ body
     include includes/command.jd
   script(id="persistent-tpl", type="template")
     include includes/persistent.jd
+  script
+    var model_name = '#{model_name}';
 
   != js('app')
 | </html>
