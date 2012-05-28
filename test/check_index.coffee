@@ -2,8 +2,7 @@ should = require 'should'
 {Nohm} = require 'nohm'
 NohmInstance = require '../lib/nohm-instance'
 instance = new NohmInstance models: [
-  "../models/un-indexed",
-  "../models/indexed"
+  "../models/test"
 ]
 
 
@@ -29,6 +28,10 @@ describe "Test 'Check Index' functionality", ->
       counter = 0
       for i in [0..2]
         t = instance.getModel('Unindexed')
+        t.properties.rel.index = false
+        t.properties.rel_id.index = false
+        t.properties.name.unique = false
+        t.properties.created_at.index = false
         t.p 'rel', 'nevermind'
         t.p 'rel_id', (i + 1) * 10
         t.p 'name', alist[i]
@@ -36,27 +39,37 @@ describe "Test 'Check Index' functionality", ->
           counter++
           done() if counter == 3
 
-  describe 'change the model definition, add more ids', ->
-    it 'the indices of the model should be out-of-sync now', (done) ->
+  describe 'change the model definition, and add more ids', ->
+    it 'add more data', (done) ->
       counter = 0
       for i in [3..4]
-        t = instance.getModel('Indexed')
+        t = instance.getModel('Unindexed')
         t.p 'rel', 'nevermind'
         t.p 'rel_id', (i + 1) * 10
         t.p 'name', alist[i]
         t.save (err) ->
           counter++
-          if counter == 2
-            t.find name: alist[4], (err, ids) ->
-              ids.length.should.be.eql 1
-              ut = instance.getModel('Indexed')
-              ut.find name: alist[2], (err, ids) ->
-                ids.length.should.be.eql 0
-                done()
+          done() if counter == 2
 
+  describe 'the indices of the model should be out-of-sync now', ->
+    it 'can find ids after we index on name property', (done) ->
+      t = instance.getModel('Unindexed')
+      t.find name: alist[4], (err, ids) ->
+        ids.length.should.be.eql 1
+        done()
+
+    it 'cannot find ids before we index on name property', (done) ->
+      t = instance.getModel('Unindexed')
+      t.find name: alist[2], (err, ids) ->
+        ids.length.should.be.eql 0
+        done()
 
   describe 'then use nohm-instance to check index on the model', ->
     
     it 'the indices should be OK now', (done) ->
-      done()
+      instance.checkIndex 'Unindexed', (report) ->
+        t = instance.getModel('Unindexed')
+        t.find name: alist[1], (err, ids) ->
+          ids.length.should.be.eql 1
+          done()
 

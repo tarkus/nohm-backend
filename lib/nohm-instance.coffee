@@ -2,6 +2,7 @@ fs = require 'fs'
 path = require 'path'
 {Nohm} = require 'nohm'
 helper = require './helper'
+async = require 'async'
 
 class NohmInstance
 
@@ -70,25 +71,49 @@ class NohmInstance
 
     @setupNohm()
     
-  checkIndex: (name) ->
+  checkIndex: (model_name, next) ->
     report = {}
-    m = @getModel(name)
-    return null unless m?
+    indices = {}
+    row_count = 0
+    checked_count = 0
+    m = @getModel(model_name)
+
+    unless m?
+      return if next then next(null) else null
+    
     for name, prop of m.properties
+      unique = index = false
       continue unless prop.unique? or prop.index?
-      if prop.unique? and prop.index?
+      unique = prop.unique? and prop.unique is true
+      index = prop.index? and prop.index is true
+      if unique and index
         report[name] = {warning: "has duplicated indices."}
-        continue
-      if prop.unique?
-        # Handle unique index
-        m.find (err, ids) ->
-          m.__index prop, m.getClient().multi()
-          report[name] = {success: "index checked"}
-      else if prop.index?
-        # Handle simple/numeric index
-        report[name] = {success: "index checked"}
-  
-    report
+        return if next then next(report) else report
+      indices[name] = if unique then 'unique index' else 'index'
+
+    m.find (err, ids) ->
+      row_count = ids.length
+      checked = 0
+      for id in ids
+        row = Nohm.factory model_name
+        row.load id, (err, properties) ->
+          row = this
+          check(row)
+
+    check = (row) ->
+      for n, t of indices
+        row.properties[n].__updated = true
+        if t is 'unique index'
+          # Because when saving a updated row, nohm remove old unique value,
+          # so I create a fake one to fool it.
+          row.properties[n].__oldValue = Nohm.prefix.unique + model_name + ':' + n + ':'
+          row.getClient().del Nohm.prefix.unique + model_name + ':' + n + ':' + row.properties[n].value
+      row.save (err) ->
+        checked_count++ unless err
+        if checked_count is row_count
+          for n, t of indices
+            report[n] = {success: t + " checked"}
+          return if next then next(report) else report
 
   getRedisClient: () ->
     client = helper.connectRedis @conf.redis
