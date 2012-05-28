@@ -48,9 +48,9 @@ app.get '/model/:model', need_login, (req, res) ->
     is_overview: true
   }
 
-app.get '/model1/:model/check_index', need_login, (req, res) ->
-  data = instance.checkIndex(req.params.model_name)
-  res.send data
+app.get '/model/:model/check_index', need_login, (req, res) ->
+  instance.checkIndex req.params.model_name, (report) ->
+    res.send report 
   
 app.get '/model/:model/detail', need_login, (req, res) ->
   res.render "model_detail", {
