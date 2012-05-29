@@ -3,7 +3,7 @@ $ = jQuery
 class IndexReport extends Spine.Model
   @configure "IndexReport", "data"
 
-  @url: "/model/" + model_name + "/check_index"
+  @url: basepath + "/model/" + model_name + "/check_index"
   
   @fetch: () ->
     $.getJSON @url, (d) =>
@@ -77,7 +77,6 @@ class MainApp extends Spine.Controller
   constructor: ->
     super
     IndexReport.bind 'create', @showIndexReport
-
     
 $ ->
   new MainApp(el: $('body'))

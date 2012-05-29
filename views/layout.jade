@@ -10,17 +10,17 @@ head
   meta(name="viewport", content="width=device-width, initial-scale=1.0")
   link(rel="shortcut icon", href="/assets/ico/favicon.ico")
   // if lt IE 9
-    != js('html5shiv')
-  != js("https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js")
-  != js('bootstrap.min')
-  != js('jade.min')
-  != js('spine')
-  != js('spine.ajax')
+    != context.js('html5shiv')
+  != context.js("https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js")
+  != context.js('bootstrap.min')
+  != context.js('jade.min')
+  != context.js('spine')
+  != context.js('spine.ajax')
 
-  != css("docs")
-  != css("simplex.min")
-  != css("bootstrap-responsive.min")
-  != css('app')
+  != context.css("docs")
+  != context.css("simplex.min")
+  != context.css("bootstrap-responsive.min")
+  != context.css('app')
   
 body
   if user && user.auth
@@ -48,6 +48,7 @@ body
     include includes/persistent.jd
   script
     var model_name = '#{model_name}';
+    var basepath = '#{basepath}';
 
-  != js('app')
+  != context.js('app')
 | </html>
