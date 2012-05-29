@@ -1,9 +1,10 @@
 express = require 'express'
-namespace = require 'express-namespace'
 stylus = require 'stylus'
 assets = require 'connect-assets'
 SessionStore = require('connect-redis')(express)
 NohmInstance = require './lib/nohm-instance'
+
+context = {}
 
 class NohmBackendApp
 
@@ -11,10 +12,14 @@ class NohmBackendApp
     port: 3003
     path: ''
     instance:
-      models: "test/test_model"
+      nohm: null
+      models: []
 
   boot: ->
     @app.listen process.env.port || @settings.port
+
+  connect: () ->
+    @app
 
   constructor: (options = {}) ->
     @settings extends options
@@ -24,8 +29,7 @@ class NohmBackendApp
     @setup(@app)
 
   setup: (app) =>
-    context = {}
-    app.configure =>
+    app.configure ->
       app.use express.cookieParser()
       app.use express.bodyParser()
       app.use express.session
@@ -35,7 +39,6 @@ class NohmBackendApp
       app.use assets
         src: __dirname + '/assets'
         helperContext: context
-        servePath: @settings.path
       app.use express.static __dirname + '/assets'
       app.set 'view engine', 'jade'
       app.set 'views', __dirname + "/views"
@@ -44,12 +47,21 @@ class NohmBackendApp
       title: ""
       models: @instance.models
       model_name: ''
-      basepath: @settings.path
       context: context
+      basepath: ''
 
     app.dynamicHelpers
       user: (req, res) ->
         req.session
+
+    app.__mounted = (parent) ->
+      basepath = app.route
+      app.use assets
+        src: __dirname + '/assets'
+        helperContext: context
+        servePath: app.route
+      app.helpers
+        basepath: basepath
 
     need_login = (req, res, next) ->
       return res.redirect '/login' unless req.session.auth?
@@ -85,7 +97,6 @@ class NohmBackendApp
     app.post '/login', (req, res) =>
       user = req.body.user
       password = req.body.password
-      console.log @instance.login
       if @instance.login user, password
         req.session.auth = true
         res.redirect '/dashboard'
@@ -97,18 +108,16 @@ class NohmBackendApp
       res.render 'login', title: 'Logout'
 
     app.get '/', (req, res, next) =>
-      console.log "hello"
       if req.session.auth
         res.redirect '/dashboard'
       else
         res.redirect '/login'
-
-  connect: ()->
-    @app
 
 
 module.exports = NohmBackendApp
 
 if require.main is module
   app = new NohmBackendApp
+    instance:
+      models: 'test/test_model'
   app.boot()

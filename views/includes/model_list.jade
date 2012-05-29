@@ -2,6 +2,6 @@
   ul.nav.nav-list
     - for (name in models)
       li(class=(model_name == name) && 'active')
-        a(href="/model/#{name}")
+        a(href="#{basepath}/model/#{name}")
           i.icon-list.model-icon(class=(model_name == name) && 'icon-white')
           &nbsp;#{name}

@@ -1,8 +1,9 @@
 fs = require 'fs'
 path = require 'path'
-{Nohm} = require 'nohm'
 helper = require './helper'
 async = require 'async'
+
+Nohm = null
 
 class NohmInstance
 
@@ -17,6 +18,7 @@ class NohmInstance
       select: null
     prefix: "nihil"
     models: []
+    nohm: null
 
   models: []
 
@@ -41,6 +43,7 @@ class NohmInstance
     @conf
 
   setupNohm: ->
+    Nohm = if @conf.nohm then @conf.nohm else require('nohm').Nohm
     models = []
     @conf.models = [@conf.models] unless helper.isArray(@conf.models)
 
@@ -49,8 +52,11 @@ class NohmInstance
         models.push v
         continue
 
-      if module.parent?
-        v = path.dirname(module.parent.filename) + "/" + v
+      if typeof v is 'string' and v[0] != '/' and module.parent?
+        parent = module.parent
+        while parent.parent?
+          parent = parent.parent
+        v = path.dirname(parent.filename) + "/" + v
 
       try
         models.push require(v)
@@ -68,7 +74,6 @@ class NohmInstance
 
   constructor: (options) ->
     @conf = if options? then @conf extends options
-
     @setupNohm()
     
   checkIndex: (model_name, next) ->

@@ -1,6 +1,6 @@
-BackendApp = require './webapp'
+NohmBackendApp = require './app'
 
 module.exports = (options) ->
-  app = new BackendApp options
+  app = new NohmBackendApp options
   app.connect()
 

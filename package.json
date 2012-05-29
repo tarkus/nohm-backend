@@ -3,12 +3,12 @@
   "name": "nohm-backend",
   "description": "a web interface for nohm database management",
   "version": "0.1.0",
-  "homepage": "https://github.com/tarkus/nohm-admin",
+  "homepage": "https://github.com/tarkus/nohm-backend",
   "repository": {
     "type": "git",
-    "url": "git://github.com/tarkus/nohm-admin.git"
+    "url": "git://github.com/tarkus/nohm-backend.git"
   },
-  "main": "app.coffee",
+  "main": "index.coffee",
   "scripts": {
     "test": "mocha"
   },
@@ -16,7 +16,7 @@
     "express": "2.5.x",    
     "coffee-script": "1.1.x",
     "jade": "0.x.x",
-    "connect-assets": "2.1.x",
+    "connect-assets": "git+ssh://git@github.com:tarkus/connect-assets.git",
     "connect-redis": "*",
     "redis": "*", 
     "nohm": "git+ssh://git@github.com:tarkus/nohm.git",

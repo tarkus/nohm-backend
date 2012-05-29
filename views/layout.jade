@@ -34,11 +34,11 @@ body
           a.brand(href='/') Nohm Backend
           .nav-collapse
             ul.nav
-              li: a(href="/dashboard") Dashboard
+              li: a(href="#{basepath}/dashboard") Dashboard
               li: a#command-btn(href="#") Command
               li: a#persistent-btn(href="#") Persistent
             ul.nav.pull-right
-              li: a(href="/logout") Logout
+              li: a(href="#{basepath}/logout") Logout
 
   != body
 

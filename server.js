@@ -1,2 +1,2 @@
 require('coffee-script')
-require('webapp').boot()
+require('./app').boot()

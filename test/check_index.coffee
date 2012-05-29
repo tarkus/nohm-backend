@@ -2,7 +2,7 @@ should = require 'should'
 {Nohm} = require 'nohm'
 NohmInstance = require '../lib/nohm-instance'
 instance = new NohmInstance models: [
-  "test_model"
+  __dirname + "/test_model"
 ]
 
 
