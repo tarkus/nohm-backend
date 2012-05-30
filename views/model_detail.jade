@@ -7,7 +7,16 @@
     .span9
       include includes/model_nav.jade
 
-      hr
       .row-fluid
-        .span9.well
-          p detail
+        table.table.table-bordered.table-striped#schema-table
+          tr
+            th ID
+            each prop, name in model.properties
+              th #{name}
+          each row in rows
+            tr
+              td #{row.id}
+              each value, name in row.allProperties()
+                - if (name == 'id') continue
+                - if (model.properties[name].type == 'timestamp') value = formatDate(value)
+                td #{value}

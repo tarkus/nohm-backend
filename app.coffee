@@ -49,6 +49,7 @@ class NohmBackendApp
       model_name: ''
       context: context
       basepath: ''
+      formatDate: require('./lib/helper').formatDate
 
     app.dynamicHelpers
       user: (req, res) ->
@@ -68,7 +69,6 @@ class NohmBackendApp
       next()
 
     app.param 'model', (req, res, next, name) =>
-      req.params.model_name = name
       res.local 'model_name', name
       return next() unless @instance.models[name]?
       res.local 'model', @instance.getModel name
@@ -80,13 +80,31 @@ class NohmBackendApp
         is_overview: true
 
     app.get '/model/:model/check_index', need_login, (req, res) =>
-      @instance.checkIndex req.params.model_name, (report) ->
+      @instance.checkIndex req.params.model, (report) ->
         res.send report
       
     app.get '/model/:model/detail', need_login, (req, res) =>
-      res.render "model_detail",
-        title: req.params.model + " model detail"
-        is_detail: true
+      rows = []
+      count = 0
+      model = @instance.getModel req.params.model
+      model.sort
+        field: 'created_at'
+        direction: 'DESC'
+        start: 0
+        amount: 30
+      , (err, ids) =>
+        for id in ids
+          row = @instance.getModel req.params.model
+          row.load id, (err) ->
+            count++ unless err
+            rows.push row
+            render() if count == ids.length
+
+        render = () ->
+          res.render "model_detail",
+            title: req.params.model + " model detail"
+            rows: rows
+            is_detail: true
 
     app.get '/dashboard', need_login, (req, res) =>
       res.render "dashboard", title: "Dashboard"

@@ -18,3 +18,8 @@ exports.isObject = (v) ->
 exports.isArray = (v) ->
   return Object.prototype.toString.call(v) is '[object Array]'
 
+exports.formatDate = (date) ->
+  if date not instanceof Date
+    date = new Date(date * 1000)
+  string = [date.getFullYear(), date.getMonth() + 1, date.getDate()].join("-")
+  string + " " + date.toLocaleTimeString()
