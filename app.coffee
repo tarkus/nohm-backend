@@ -10,7 +10,6 @@ class NohmBackendApp
 
   settings:
     port: 3003
-    path: ''
     instance:
       nohm: null
       models: []
@@ -97,10 +96,13 @@ class NohmBackendApp
         return render() if ids.length is 0
         for id in ids
           row = @instance.getModel req.params.model
-          row.load id, (err) ->
+          load_func = if row._super_load? then row._super_load.bind(row) else row.load.bind(row)
+          load_func id, (err) ->
             return render() if err?
             count++
-            rows.push this.allProperties()
+            rows.push if this._super_allProperties
+            then this._super_allProperties.call(this)
+            else this.allProperties()
             render() if count == ids.length
 
     app.get '/dashboard', need_login, (req, res) =>
@@ -112,11 +114,10 @@ class NohmBackendApp
     app.post '/login', (req, res) =>
       user = req.body.user
       password = req.body.password
-      if @instance.login user, password
+      @instance.login user, password, (ok) ->
+        return res.redirect '/login' unless ok
         req.session.auth = true
         res.redirect '/dashboard'
-      else
-        res.redirect '/login'
 
     app.get '/logout', (req, res) =>
       req.session.destroy()

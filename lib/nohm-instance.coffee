@@ -67,8 +67,9 @@ class NohmInstance
         catch e
           console.log e
 
-    Nohm.setClient @getRedisClient()
-    Nohm.setPrefix @conf.prefix
+    Nohm.setClient @getRedisClient() unless Nohm.client?
+    # A little tricky but ...
+    Nohm.setPrefix @conf.prefix if Nohm.prefix.ids == 'nohm:ids:'
 
     @models = Nohm.getModels()
 
@@ -101,7 +102,8 @@ class NohmInstance
       checked = 0
       for id in ids
         row = Nohm.factory model_name
-        row.load id, (err, properties) ->
+        load_func = if row._super_load? then row._super_load.bind(row) else row.load.bind(row)
+        load_func id, (err) ->
           row = this
           check(row)
 
@@ -129,11 +131,10 @@ class NohmInstance
     return null unless @models[name]?
     return Nohm.factory(name)
 
-  login: (user, password) ->
+  login: (user, password, callback) ->
     if typeof @conf.login is 'function'
-      @conf.login(user, password)
+      @conf.login(user, password, callback)
     else
-      user is @conf.login.user and \
-      password is @conf.login.password
+      callback user is @conf.login.user and password is @conf.login.password
 
 module.exports = NohmInstance
