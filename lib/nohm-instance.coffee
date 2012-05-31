@@ -8,14 +8,11 @@ Nohm = null
 class NohmInstance
 
   conf:
-    login:
-      user: "admin"
-      password: "nohm"
     redis:
       host: 'localhost'
       port: '6379'
       auth: null
-      select: null
+      db: null
     prefix: "nihil"
     models: []
     nohm: null
@@ -124,17 +121,11 @@ class NohmInstance
 
   getRedisClient: () ->
     client = helper.connectRedis @conf.redis
-    client.select @conf.redis.select if @conf.redis.select?
+    client.select @conf.redis.db if @conf.redis.db?
     client
 
   getModel: (name) ->
     return null unless @models[name]?
     return Nohm.factory(name)
-
-  login: (user, password, callback) ->
-    if typeof @conf.login is 'function'
-      @conf.login(user, password, callback)
-    else
-      callback user is @conf.login.user and password is @conf.login.password
 
 module.exports = NohmInstance

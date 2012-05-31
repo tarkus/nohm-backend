@@ -3,6 +3,7 @@ stylus = require 'stylus'
 assets = require 'connect-assets'
 SessionStore = require('connect-redis')(express)
 NohmInstance = require './lib/nohm-instance'
+helper = require('./lib/helper')
 
 context = {}
 
@@ -10,6 +11,10 @@ class NohmBackendApp
 
   settings:
     port: 3003
+    login:
+      user: 'admin'
+      password: 'nohm'
+    session_store: null
     instance:
       nohm: null
       models: []
@@ -34,7 +39,9 @@ class NohmBackendApp
       app.use express.session
         secret: "nohm rocks!"
         maxAge: new Date Date.now() + 7200000
-        store: new SessionStore {client: require('./lib/helper').connectRedis(), db: 4}
+        store: if @settings.session_store?
+        then @settings.session_store
+        else new SessionStore {client: helper.connectRedis(), db: 4}
       app.use assets
         src: __dirname + '/assets'
         helperContext: context
@@ -114,10 +121,15 @@ class NohmBackendApp
     app.post '/login', (req, res) =>
       user = req.body.user
       password = req.body.password
-      @instance.login user, password, (ok) ->
-        return res.redirect '/login' unless ok
+      callback = (is_auth) ->
+        return res.redirect '/login' unless is_auth
         req.session.auth = true
         res.redirect '/dashboard'
+      if typeof @settings.login is 'function'
+        @settings.login user, password, callback
+      else
+        callback user is @settings.login.user and \
+          password is @settings.login.password
 
     app.get '/logout', (req, res) =>
       req.session.destroy()
