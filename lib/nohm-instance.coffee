@@ -127,8 +127,7 @@ class NohmInstance
 
   getModel: (name) ->
     return null unless @models[name]?
-    m = Nohm.factory name
-    return m
+    return Nohm.factory(name)
 
   login: (user, password) ->
     if typeof @conf.login is 'function'

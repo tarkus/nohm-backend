@@ -16,7 +16,7 @@
           each row in rows
             tr
               td #{row.id}
-              each value, name in row.allProperties()
+              each value, name in row
                 - if (name == 'id') continue
-                - if (model.properties[name].type == 'timestamp') value = formatDate(value)
+                - if (model.properties[name] && model.properties[name].type == 'timestamp') value = formatDate(value)
                 td #{value}

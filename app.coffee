@@ -35,7 +35,7 @@ class NohmBackendApp
       app.use express.session
         secret: "nohm rocks!"
         maxAge: new Date Date.now() + 7200000
-        store: new SessionStore {client: require('./lib/helper').connectRedis()}
+        store: new SessionStore {client: require('./lib/helper').connectRedis(), db: 4}
       app.use assets
         src: __dirname + '/assets'
         helperContext: context
@@ -87,24 +87,21 @@ class NohmBackendApp
       rows = []
       count = 0
       model = @instance.getModel req.params.model
-      model.sort
-        field: 'created_at'
-        direction: 'DESC'
-        start: 0
-        amount: 30
-      , (err, ids) =>
-        for id in ids
-          row = @instance.getModel req.params.model
-          row.load id, (err) ->
-            count++ unless err
-            rows.push row
-            render() if count == ids.length
-
+      model.find (err, ids) =>
         render = () ->
           res.render "model_detail",
             title: req.params.model + " model detail"
             rows: rows
             is_detail: true
+
+        return render() if ids.length is 0
+        for id in ids
+          row = @instance.getModel req.params.model
+          row.load id, (err) ->
+            return render() if err?
+            count++
+            rows.push this.allProperties()
+            render() if count == ids.length
 
     app.get '/dashboard', need_login, (req, res) =>
       res.render "dashboard", title: "Dashboard"
@@ -130,7 +127,6 @@ class NohmBackendApp
         res.redirect '/dashboard'
       else
         res.redirect '/login'
-
 
 module.exports = NohmBackendApp
 
