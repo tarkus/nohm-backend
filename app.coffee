@@ -20,7 +20,7 @@ class NohmBackendApp
       models: []
 
   boot: ->
-    @app.listen process.env.port || @settings.port
+    @app.listen process.env.PORT || @settings.port
 
   connect: () ->
     @app

@@ -1,2 +1,4 @@
 require('coffee-script')
-require('./app').boot()
+NohmBackendApp = require('./app')
+app = new NohmBackendApp
+app.boot()
