@@ -19,7 +19,7 @@
     "connect-assets": "git://github.com/tarkus/connect-assets.git",
     "connect-redis": "*",
     "redis": "*", 
-    "nohm": "git://github.com/tarkus/nohm.git",
+    "nohm": "*",
     "stylus": "*",
     "qs": "*",
     "async": "*",
