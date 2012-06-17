@@ -39,9 +39,8 @@ class NohmBackendApp
       app.use express.session
         secret: "nohm rocks!"
         maxAge: new Date Date.now() + 7200000
-        store: if @settings.session_store?
-        then @settings.session_store
-        else new SessionStore {client: helper.connectRedis(), db: 4}
+        store: if @settings.session_store? then @settings.session_store \
+          else new SessionStore {client: helper.connectRedis(), db: 4}
       app.use assets
         src: __dirname + '/assets'
         helperContext: context
