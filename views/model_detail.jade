@@ -1,22 +1,25 @@
-.container#main
+extend layout
 
-  .row-fluid
-    .span3
-      include includes/model_list.jade
+block content
+  .container#main
 
-    .span9
-      include includes/model_nav.jade
+    .row-fluid
+      .span3
+        include includes/model_list.jade
 
-      .row-fluid
-        table.table.table-bordered.table-striped#schema-table
-          tr
-            th ID
-            each prop, name in model.properties
-              th #{name}
-          each row in rows
+      .span9
+        include includes/model_nav.jade
+
+        .row-fluid
+          table.table.table-bordered.table-striped#schema-table
             tr
-              td #{row.id}
-              each value, name in row
-                - if (name == 'id') continue
-                - if (model.properties[name] && model.properties[name].type == 'timestamp') value = formatDate(value)
-                td #{value}
+              th ID
+              each prop, name in model.properties
+                th #{name}
+            each row in rows
+              tr
+                td #{row.id}
+                each value, name in row
+                  - if (name == 'id') continue
+                  - if (model.properties[name] && model.properties[name].type == 'timestamp') value = formatDate(value)
+                  td #{value}

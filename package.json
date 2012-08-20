@@ -13,17 +13,17 @@
     "test": "mocha"
   },
   "dependencies": {
-    "express": "2.5.x",    
-    "coffee-script": "1.1.x",
-    "jade": "0.x.x",
-    "connect-assets": "git://github.com/tarkus/connect-assets.git",
+    "express": "*", 
+    "coffee-script": "*",
+    "jade": "*",
+    "connect-assets": "*",
     "connect-redis": "*",
     "redis": "*", 
-    "nohm": "git://github.com/tarkus/nohm.git",
+    "nohm": "*",
     "stylus": "*",
     "qs": "*",
     "async": "*",
-    "should": ""
+    "should": "*"
   },
   "devDependencies": {},
   "optionalDependencies": {},

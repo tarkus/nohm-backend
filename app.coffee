@@ -20,7 +20,8 @@ class NohmBackendApp
       models: []
 
   boot: ->
-    @app.listen process.env.PORT || @settings.port
+    server = require('http').createServer(@app)
+    server.listen process.env.PORT || @settings.port
 
   connect: () ->
     @app
@@ -29,55 +30,52 @@ class NohmBackendApp
     @settings extends options
     @instance = new NohmInstance @settings.instance
     throw "No nohm instance founded." unless @instance?
-    @app = express.createServer()
+    @app = express()
     @setup(@app)
 
   setup: (app) =>
+    models = @instance.models
     app.configure ->
+      app.set 'view engine', 'jade'
+      app.set 'views', __dirname + "/views"
+      app.use express.favicon()
+      app.use express.logger('dev')
       app.use express.cookieParser()
       app.use express.bodyParser()
       app.use express.session
         secret: "nohm rocks!"
         maxAge: new Date Date.now() + 7200000
-        store: if @settings.session_store? then @settings.session_store \
-          else new SessionStore {client: helper.connectRedis(), db: 4}
-      app.use assets
-        src: __dirname + '/assets'
-        helperContext: context
+        store: @settings.session_store ? new SessionStore
+          client: helper.connectRedis(), db: 4
+      app.use (req, res, next) ->
+        app.locals.title = ''
+        app.locals.models = models
+        app.locals.model_name = ''
+        app.locals.basepath = ''
+        app.locals.context = context
+        app.locals.formatDate = require('./lib/helper').formatDate
+        app.locals.user = req.session
+        next()
+      app.use app.router
       app.use express.static __dirname + '/assets'
-      app.set 'view engine', 'jade'
-      app.set 'views', __dirname + "/views"
 
-    app.helpers
-      title: ""
-      models: @instance.models
-      model_name: ''
-      context: context
-      basepath: ''
-      formatDate: require('./lib/helper').formatDate
-
-    app.dynamicHelpers
-      user: (req, res) ->
-        req.session
-
-    app.__mounted = (parent) ->
-      basepath = app.route
+    app.on 'mount', ->
       app.use assets
         src: __dirname + '/assets'
         helperContext: context
-        servePath: app.route
-      app.helpers
-        basepath: basepath
+        servePath: app.path()
 
     need_login = (req, res, next) ->
-      return res.redirect '/login' unless req.session.auth?
+      return res.redirect 'login' unless req.session.auth?
       next()
 
+    ###
     app.param 'model', (req, res, next, name) =>
-      res.local 'model_name', name
+      res.locals.model_name = name
       return next() unless @instance.models[name]?
-      res.local 'model', @instance.getModel name
+      res.locals.model = @instance.getModel name
       next()
+    ###
 
     app.get '/model/:model', need_login, (req, res) =>
       res.render "model_overview",
@@ -115,15 +113,15 @@ class NohmBackendApp
       res.render "dashboard", title: "Dashboard"
 
     app.get '/login', (req, res) ->
-      res.render "login", title: "Login"
+      res.render "login", title: 'Login'
 
     app.post '/login', (req, res) =>
       user = req.body.user
       password = req.body.password
       callback = (is_auth) ->
-        return res.redirect '/login' unless is_auth
+        return res.redirect 'login' unless is_auth
         req.session.auth = true
-        res.redirect '/dashboard'
+        res.redirect 'dashboard'
       if typeof @settings.login is 'function'
         @settings.login user, password, callback
       else
@@ -136,9 +134,9 @@ class NohmBackendApp
 
     app.get '/', (req, res, next) =>
       if req.session.auth
-        res.redirect '/dashboard'
+        res.redirect 'dashboard'
       else
-        res.redirect '/login'
+        res.redirect 'login'
 
 module.exports = NohmBackendApp
 

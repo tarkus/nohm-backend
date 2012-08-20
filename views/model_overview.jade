@@ -1,73 +1,76 @@
-.container#main
+extend layout
 
-  .row-fluid
-    .span3
-      include includes/model_list.jade
+block content
+  .container#main
 
-    .span9
-      include includes/model_nav.jade
+    .row-fluid
+      .span3
+        include includes/model_list.jade
 
-      .row-fluid
-        table.table.table-bordered.table-striped#schema-table
-          thead: tr
-            th Name
-            th Type
-            th Default
-            th Index
-          tr
-            td id
-            td 
-              if model.idGenerator == 'increment'
-                | integer
-              else if typeof model.idGenerator == 'function'
-                a.prop(href="#", rel="popover", data-content="#{model.idGenerator}", data-original-title="Function")
-                  | function
-              else
-                #{model.idGenerator}
-            td n/a
-            td n/a 
+      .span9
+        include includes/model_nav.jade
 
-          - for prop, name in model.properties
+        .row-fluid
+          table.table.table-bordered.table-striped#schema-table
+            thead: tr
+              th Name
+              th Type
+              th Default
+              th Index
             tr
-              td #{name}
-              td
-                if typeof prop.type == 'function'
-                  a.prop(href="#", rel="popover", data-content="#{prop.type}", data-original-title="Function")
+              td id
+              td 
+                if model.idGenerator == 'increment'
+                  | integer
+                else if typeof model.idGenerator == 'function'
+                  a.prop(href="#", rel="popover", data-content="#{model.idGenerator}", data-original-title="Function")
                     | function
                 else
-                  #{prop.type}
-              td 
-                if typeof prop.defaultValue == 'function'
-                  a.prop(href="#", rel="popover", data-content="#{prop.defaultValue}", data-original-title="Function")
-                    | function
-                else if typeof prop.defaultValue != 'unfefined'
-                  #{prop.defaultValue}
-                else
-                  | n/a
-              td 
-                if typeof prop.index != 'unfefined' && prop.index
-                  if ['string', 'boolean', 'json', 'function'].indexOf(prop.type)
-                    | simple 
-                  else if ['integer', 'float', 'timestamp'].indexOf(prop.type)
-                    | numeric 
+                  #{model.idGenerator}
+              td n/a
+              td n/a 
+
+            - for prop, name in model.properties
+              tr
+                td #{name}
+                td
+                  if typeof prop.type == 'function'
+                    a.prop(href="#", rel="popover", data-content="#{prop.type}", data-original-title="Function")
+                      | function
                   else
-                    | yes 
-                else
-                  if typeof prop.unique != 'unfefined' && prop.unique
-                    | unique
+                    #{prop.type}
+                td 
+                  if typeof prop.defaultValue == 'function'
+                    a.prop(href="#", rel="popover", data-content="#{prop.defaultValue}", data-original-title="Function")
+                      | function
+                  else if typeof prop.defaultValue != 'unfefined'
+                    #{prop.defaultValue}
                   else
-                    | no
+                    | n/a
+                td 
+                  if typeof prop.index != 'unfefined' && prop.index
+                    if ['string', 'boolean', 'json', 'function'].indexOf(prop.type)
+                      | simple 
+                    else if ['integer', 'float', 'timestamp'].indexOf(prop.type)
+                      | numeric 
+                    else
+                      | yes 
+                  else
+                    if typeof prop.unique != 'unfefined' && prop.unique
+                      | unique
+                    else
+                      | no
 
-        script(type="text/javascript")
-          $("#schema-table").popover({selector: ".prop"})
+          script(type="text/javascript")
+            $("#schema-table").popover({selector: ".prop"})
 
-        .actions
-          button.btn.btn-info#check-index-btn Check Index
+          .actions
+            button.btn.btn-info#check-index-btn Check Index
 
-        script#index-report-tpl(type="template")
-          include includes/model_index_report.jd
+          script#index-report-tpl(type="template")
+            include includes/model_index_report.jd
 
-        #index-report
+          #index-report
           
 
 

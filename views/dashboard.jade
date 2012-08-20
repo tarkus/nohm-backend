@@ -1,24 +1,27 @@
-.container#main
+extend layout
 
-  .row-fluid
-    .span3
-      include includes/model_list.jade
+block content
+  .container#main
 
-    .span9
-      .row-fluid
-        .span5.well
-          h3 Uptime
-          p
-            strong Uptime in Minutes
-        .span5.well
-          h3 Info
-      .row-fluid
-        .span5.well
-          h3 Usage
-        .span5.well
-          h3 Persistence
-      .row-fluid
-        .span5.well
-          h3 Connections 
-        .span5.well
-          h3 Replication
+    .row-fluid
+      .span3
+        include includes/model_list.jade
+
+      .span9
+        .row-fluid
+          .span5.well
+            h3 Uptime
+            p
+              strong Uptime in Minutes
+          .span5.well
+            h3 Info
+        .row-fluid
+          .span5.well
+            h3 Usage
+          .span5.well
+            h3 Persistence
+        .row-fluid
+          .span5.well
+            h3 Connections 
+          .span5.well
+            h3 Replication
