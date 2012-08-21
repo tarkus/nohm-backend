@@ -111,7 +111,9 @@ class NohmInstance
           # so I create a fake one to fool it.
           row.properties[n].__oldValue = @nohm.prefix.unique + model_name + ':' + n + ':'
           row.getClient().del @nohm.prefix.unique + model_name + ':' + n + ':' + row.properties[n].value
-      row.save (err) ->
+
+      save_func = if row._super_save? then row._super_save.bind(row) else row.save.bind(row)
+      save_func (err) ->
         checked_count++ unless err
         if checked_count is row_count
           for n, t of indices
