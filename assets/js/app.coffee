@@ -76,6 +76,7 @@ class MainApp extends Spine.Controller
 
   constructor: ->
     super
+    console.log 'eh'
     IndexReport.bind 'create', @showIndexReport
     
 $ ->

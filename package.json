@@ -2,7 +2,7 @@
   "author": "Tarkus Liu <tarkus.nnkh@gmail.com>",
   "name": "nohm-backend",
   "description": "a web interface for nohm database management",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "homepage": "https://github.com/tarkus/nohm-backend",
   "repository": {
     "type": "git",
@@ -22,10 +22,11 @@
     "nohm": "*",
     "stylus": "*",
     "qs": "*",
-    "async": "*",
+    "async": "*"
+  },
+  "devDependencies": {
     "should": "*"
   },
-  "devDependencies": {},
   "optionalDependencies": {},
   "engines": {
     "node": "0.6.x",

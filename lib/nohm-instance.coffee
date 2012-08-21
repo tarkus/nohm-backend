@@ -81,8 +81,7 @@ class NohmInstance
     checked_count = 0
     m = @getModel(model_name)
 
-    unless m?
-      return if next then next(null) else null
+    return next?(null) unless m?
     
     for name, prop of m.properties
       unique = index = false
@@ -95,6 +94,7 @@ class NohmInstance
       indices[name] = if unique then 'unique index' else 'index'
 
     m.find (err, ids) =>
+      return next warning: "empty" if err or ids.length is 0
       row_count = ids.length
       checked = 0
       for id in ids
@@ -118,7 +118,7 @@ class NohmInstance
         if checked_count is row_count
           for n, t of indices
             report[n] = {success: t + " checked"}
-          return if next then next(report) else report
+          return next?(report)
 
   getRedisClient: () ->
     client = helper.connectRedis @conf.redis

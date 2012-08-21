@@ -2,8 +2,11 @@
   if typeof report.data != "undefined"
     for info, name in report.data
       p
-      for text, result in info
-        span.label(class='label-#{result}', style="text-transform: capitalize;") #{result}
-        code #{name}
-        | #{text}
+      if typeof info == 'string'
+        span.label(class='label-#{name}', style="text-transform: capitalize;") #{info}
+      else
+        for text, result in info
+          span.label(class='label-#{result}', style="text-transform: capitalize;") #{result}
+          code #{name}
+          | #{text}
 

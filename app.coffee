@@ -47,11 +47,15 @@ class NohmBackendApp
         maxAge: new Date Date.now() + 7200000
         store: @settings.session_store ? new SessionStore
           client: helper.connectRedis(), db: 4
+      app.use assets
+        src: __dirname + '/assets'
+        helperContext: context
+        servePath: app.path()
       app.use (req, res, next) ->
         app.locals.title = ''
         app.locals.models = models
         app.locals.model_name = ''
-        app.locals.basepath = ''
+        app.locals.basepath = app.path()
         app.locals.context = context
         app.locals.formatDate = require('./lib/helper').formatDate
         app.locals.user = req.session
@@ -65,17 +69,17 @@ class NohmBackendApp
         helperContext: context
         servePath: app.path()
 
+      app.locals.basepath = app.path()
+
     need_login = (req, res, next) ->
       return res.redirect 'login' unless req.session.auth?
       next()
 
-    ###
     app.param 'model', (req, res, next, name) =>
-      res.locals.model_name = name
+      app.locals.model_name = name
       return next() unless @instance.models[name]?
-      res.locals.model = @instance.getModel name
+      app.locals.model = @instance.getModel name
       next()
-    ###
 
     app.get '/model/:model', need_login, (req, res) =>
       res.render "model_overview",
