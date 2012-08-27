@@ -66,11 +66,13 @@ block content
 
           .actions
             button.btn.btn-info#check-index-btn Check Index
+            | 
+            button.btn.btn-danger#truncate-btn Truncate
 
-          script#index-report-tpl(type="template")
-            include includes/model_index_report.jd
+          script#report-tpl(type="template")
+            include includes/report.jd
 
-          #index-report
+          #report
           
 
 

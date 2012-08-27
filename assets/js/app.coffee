@@ -1,24 +1,34 @@
 $ = jQuery
 
-class IndexReport extends Spine.Model
-  @configure "IndexReport", "data"
+class Report extends Spine.Model
+  @configure "Report", "data"
 
-  @url: basepath + "/model/" + model_name + "/check_index"
+  @url: basepath + "/model/" + model_name
   
-  @fetch: () ->
-    $.getJSON @url, (d) =>
-      report = IndexReport.create data: d
+  @check: ->
+    $.getJSON @url + '/check', (data) =>
+      report = @create data: data
       report
-    .error () ->
-      # TODO
-      #     Don't do it here.
-      $("#index-report").html("something wrong")
+    .error =>
+      report = @create
+        data:
+          error: 'something wrong'
+      
+  @truncate: ->
+    $.getJSON @url + '/truncate', (data) =>
+      report = @create data: data
+      report
+    .error =>
+      report = @create
+        data:
+          error: 'something wrong'
 
-class IndexReportView extends Spine.Controller
+
+class Reports extends Spine.Controller
 
   constructor: ->
     super
-    @template = jade.compile $("#index-report-tpl").text()
+    @template = jade.compile $("#report-tpl").text()
 
   render: =>
     @replace(@template report: @report)
@@ -50,6 +60,7 @@ class MainApp extends Spine.Controller
     "click #command-btn": "showCommandPage"
     "click #persistent-btn": "showPersistentPage"
     "click #check-index-btn": "checkIndex"
+    "click #truncate-btn": "truncate"
 
   elements:
     "#command-btn": "commandBtn"
@@ -67,17 +78,19 @@ class MainApp extends Spine.Controller
 
   checkIndex: (e) ->
     e.preventDefault()
-    report = IndexReport.fetch()
-    report
+    Report.check()
 
-  showIndexReport: (report) ->
-    view = new IndexReportView report: report
-    $("#index-report").html(view.render().el)
+  truncate: (e) ->
+    e.preventDefault()
+    Report.truncate()
+
+  showReport: (report) ->
+    view = new Reports report: report
+    $("#report").html(view.render().el)
 
   constructor: ->
     super
-    console.log 'eh'
-    IndexReport.bind 'create', @showIndexReport
+    Report.bind 'create', @showReport
     
 $ ->
   new MainApp(el: $('body'))

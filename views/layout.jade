@@ -2,15 +2,11 @@
 head
   meta(charset='utf-8')
   meta(name='description', content='')
-  title 
-    - if (title)
-      - title += " - "
-      #{title}Nohm Backend
-  //- Mobile Specific
+  title #{title} - Nohm Backend
   meta(name="viewport", content="width=device-width, initial-scale=1.0")
   link(rel="shortcut icon", href="/assets/ico/favicon.ico")
   // if lt IE 9
-    != context.js("html5shiv")
+     != context.js("html5shiv")
   != context.js("jquery.min")
   != context.js("bootstrap.min")
   != context.js("jade.min")

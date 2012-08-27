@@ -9,27 +9,23 @@ context = {}
 
 class NohmBackendApp
 
-  settings:
+  options:
     port: 3003
     login:
       user: 'admin'
       password: 'nohm'
-    session_store: null
-    instance:
-      nohm: null
-      models: []
+    models: []
 
   boot: ->
     server = require('http').createServer(@app)
-    server.listen process.env.PORT || @settings.port
+    server.listen process.env.PORT || @options.port
 
   connect: () ->
     @app
 
   constructor: (options = {}) ->
-    @settings extends options
-    @instance = new NohmInstance @settings.instance
-    throw "No nohm instance founded." unless @instance?
+    @options extends options
+    @instance = new NohmInstance models: @options.models
     @app = express()
     @setup(@app)
 
@@ -45,7 +41,7 @@ class NohmBackendApp
       app.use express.session
         secret: "nohm rocks!"
         maxAge: new Date Date.now() + 7200000
-        store: @settings.session_store ? new SessionStore
+        store: new SessionStore
           client: helper.connectRedis(), db: 4
       app.use assets
         src: __dirname + '/assets'
@@ -63,7 +59,7 @@ class NohmBackendApp
       app.use app.router
       app.use express.static __dirname + '/assets'
 
-    app.on 'mount', ->
+    app.on 'mount', (parent) ->
       app.use assets
         src: __dirname + '/assets'
         helperContext: context
@@ -86,8 +82,12 @@ class NohmBackendApp
         title: req.params.model + " model overview"
         is_overview: true
 
-    app.get '/model/:model/check_index', need_login, (req, res) =>
+    app.get '/model/:model/check', need_login, (req, res) =>
       @instance.checkIndex req.params.model, (report) ->
+        res.send report
+
+    app.get '/model/:model/truncate', need_login, (req, res) =>
+      @instance.truncate req.params.model, (report) ->
         res.send report
       
     app.get '/model/:model/detail', need_login, (req, res) =>
@@ -126,11 +126,11 @@ class NohmBackendApp
         return res.redirect 'login' unless is_auth
         req.session.auth = true
         res.redirect 'dashboard'
-      if typeof @settings.login is 'function'
-        @settings.login user, password, callback
+      if typeof @options.login is 'function'
+        @options.login user, password, callback
       else
-        callback user is @settings.login.user and \
-          password is @settings.login.password
+        callback user is @options.login.user and \
+          password is @options.login.password
 
     app.get '/logout', (req, res) =>
       req.session.destroy()

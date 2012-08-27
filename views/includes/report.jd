@@ -3,7 +3,7 @@
     for info, name in report.data
       p
       if typeof info == 'string'
-        span.label(class='label-#{name}', style="text-transform: capitalize;") #{info}
+        span.label(class='label-#{name}') #{info}
       else
         for text, result in info
           span.label(class='label-#{result}', style="text-transform: capitalize;") #{result}

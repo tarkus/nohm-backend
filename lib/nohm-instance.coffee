@@ -5,7 +5,7 @@ async = require 'async'
 
 class NohmInstance
 
-  conf:
+  options:
     redis:
       host: 'localhost'
       port: '6379'
@@ -18,15 +18,15 @@ class NohmInstance
   models: []
 
   get: () ->
-    c = @conf
+    c = @options
     for arg in arguments
       return null unless c[arg]?
       c = c[arg]
     c
 
   set: () ->
-    return @conf if arguments.length < 2
-    node = @conf
+    return @options if arguments.length < 2
+    node = @options
     for arg, k in arguments
       unless node[arg]?
         if k is arguments.length - 2
@@ -34,24 +34,31 @@ class NohmInstance
           break
         node[arg] = {}
       node = node[arg]
-    @setupNohm()
-    @conf
+    @setup()
+    @options
 
-  setupNohm: ->
-    @nohm = @conf.nohm ? require('nohm').Nohm
+  setup: ->
     models = []
-    @conf.models = [@conf.models] unless helper.isArray(@conf.models)
+    @options.models = [@options.models] unless helper.isArray(@options.models)
 
-    for v in @conf.models
+    if module.parent?
+      toplevel = module.parent
+      while toplevel.parent?
+        toplevel = toplevel.parent
+
+    try
+      @nohm = toplevel.require('nohm').Nohm
+    catch e
+      return console.log e
+
+    for v in @options.models
       if helper.isObject(v)
         models.push v
         continue
 
-      if typeof v is 'string' and v[0] != '/' and module.parent?
-        parent = module.parent
-        while parent.parent?
-          parent = parent.parent
-        v = path.dirname(parent.filename) + "/" + v
+      continue if typeof v isnt 'string'
+
+      v = path.dirname(toplevel.filename) + "/" + v if v[0] isnt '/'
 
       try
         models.push require(v)
@@ -64,16 +71,26 @@ class NohmInstance
 
     unless @nohm.client?
       redisClient = @getRedisClient()
-      redisClient.on 'connect', => @nohm.setClient redisClient
-    # A little tricky but ...
-    @nohm.setPrefix @conf.prefix if @nohm.prefix.ids == 'nohm:ids:'
+      redisClient.on 'connect', =>
+        @nohm.setClient redisClient
+        @nohm.setPrefix @options.prefix if @nohm.prefix.ids == 'nohm:ids:'
 
     @models = @nohm.getModels()
 
-  constructor: (options) ->
-    @conf = if options? then @conf extends options
-    @setupNohm()
+  constructor: (options = {}) ->
+    @options extends options
+    @setup()
     
+  truncate: (model_name, next) ->
+    @nohm.client.keys @nohm.prefix.ids.split(':')[0] + ':*', (err, keys) =>
+      return next warning: "0 key removed" if not keys or keys.length == 0
+      total = keys.length
+      count = 0
+      cb = ->
+        count++
+        next success: total + " keys removed" if count == total
+      @nohm.client.del key, cb for key in keys
+
   checkIndex: (model_name, next) ->
     report = {}
     indices = {}
@@ -89,7 +106,7 @@ class NohmInstance
       unique = prop.unique? and prop.unique is true
       index = prop.index? and prop.index is true
       if unique and index
-        report[name] = {warning: "has duplicated indices."}
+        report[name] = warning: "has duplicated indices."
         return if next then next(report) else report
       indices[name] = if unique then 'unique index' else 'index'
 
@@ -117,12 +134,12 @@ class NohmInstance
         checked_count++ unless err
         if checked_count is row_count
           for n, t of indices
-            report[n] = {success: t + " checked"}
+            report[n] = success: t + " checked"
           return next?(report)
 
-  getRedisClient: () ->
-    client = helper.connectRedis @conf.redis
-    client.select @conf.redis.db if @conf.redis.db?
+  getRedisClient: ->
+    client = helper.connectRedis @options.redis
+    client.select @options.redis.db if @options.redis.db?
     client
 
   getModel: (name) ->
